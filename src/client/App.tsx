@@ -3,7 +3,8 @@ import { ConfirmHost } from './components/overlay'
 import { Toaster } from './components/feedback'
 import { Spinner } from './components/primitives'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { LoginPage } from './features/auth/LoginPage'
+import { LoginForm } from './features/auth/LoginPage'
+import { LandingPage } from './features/auth/LandingPage'
 import { dismissBootScreen } from './lib/boot'
 import { t, useLocale } from './lib/i18n'
 import { initializePwa, requestOfflineWarmup } from './store/pwa'
@@ -21,6 +22,7 @@ export function App() {
   useLocale()
   const status = useSession((s) => s.status)
   const load = useSession((s) => s.load)
+  const [loginOpen, setLoginOpen] = useState(false)
   const [shareSlug] = useState(() => {
     const match = /^\/s\/([A-Za-z0-9_-]+)/.exec(location.pathname)
     return match?.[1] ?? null
@@ -51,6 +53,13 @@ export function App() {
     return () => window.clearTimeout(timer)
   }, [shareSlug])
 
+  // Close login modal when authenticated
+  useEffect(() => {
+    if (status === 'authed') {
+      setLoginOpen(false)
+    }
+  }, [status])
+
   if (shareSlug) {
     return (
       <>
@@ -68,7 +77,14 @@ export function App() {
     <>
       <ErrorBoundary>
         {status === 'loading' && <div className="h-full" />}
-        {status === 'anonymous' && <LoginPage />}
+        {status === 'anonymous' && (
+          <>
+            <LandingPage onLogin={() => setLoginOpen(true)} />
+            {loginOpen && (
+              <LoginModal onClose={() => setLoginOpen(false)} />
+            )}
+          </>
+        )}
         {status === 'authed' && (
           <Suspense fallback={<PageFallback />}>
             <AppShell />
@@ -80,6 +96,50 @@ export function App() {
     </>
   )
 }
+
+
+function LoginModal({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
+
+  return (
+    <div className="fixed inset-0 z-[300] flex items-end justify-center sm:items-center sm:p-4">
+      {/* Backdrop */}
+      <div
+        className="anim-fade absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      {/* Panel */}
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("auth.sign_in")}
+        className="anim-pop relative w-full max-w-[420px] rounded-t-2xl border-t border-[#e2e8f0] bg-white p-5 shadow-[0_-4px_24px_rgba(0,0,0,0.1)] sm:rounded-2xl sm:border sm:border-[#e2e8f0] sm:p-6 sm:shadow-[0_8px_40px_rgba(0,0,0,0.12)] md:p-8"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 inline-flex size-8 items-center justify-center rounded-lg text-[#94a3b8] transition-colors hover:bg-[#f1f5f9] hover:text-[#475569] sm:top-4 sm:right-4"
+          aria-label={t("common.close")}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <LoginForm />
+      </div>
+    </div>
+  )
+}
+
 
 function PageFallback() {
   return (

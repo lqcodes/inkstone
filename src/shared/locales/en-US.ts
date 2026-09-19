@@ -4,7 +4,7 @@ export const EN_US_MESSAGES = {
     "mobile.menu": "Menu",
     "mobile.back_to_account": "Back to Me",
     "app.boot_label": "Preparing your notebook…",
-    "app.document_title": "Inkstone",
+    "app.document_title": "CloudNote",
     "app.meta_description": "A private, self-hosted Markdown notebook built on Cloudflare.",
     "api.error.bad_request": "The request is invalid",
     "api.error.conflict": "This content was changed elsewhere. Refresh and try again",
@@ -94,7 +94,7 @@ export const EN_US_MESSAGES = {
     "auth.recovery_code": "Recovery code",
     "auth.recovery_code_used": "Recovery code used",
     "auth.recovery_codes_remaining": "You have {count} unused recovery code(s) remaining. Replace them in Settings if needed.",
-    "auth.self_hosted_on_cloudflare_workers_your_data_is_yours": "Private notes · Your data stays under your control",
+    "auth.self_hosted_on_cloudflare_workers_your_data_is_yours": "cloudnote.cc · Cloud Notes Service",
     "auth.sign_in": "Sign in",
     "auth.sign_up": "Sign up",
     "auth.this_is_a_private_instance_registration_is_closed_so_only_existing_accou": "This is a private instance. Registration is closed, so only existing accounts can sign in.",
@@ -214,7 +214,7 @@ export const EN_US_MESSAGES = {
     "common.password": "Password",
     "common.permanently_deleted_value0_notes": "Permanently deleted {value0} notes",
     "common.preview": "Preview",
-    "common.product_name": "Inkstone",
+    "common.product_name": "CloudNote",
     "common.quote": "Quote",
     "common.remove_from_favorites": "Remove from favorites",
     "common.restore": "Restore",
@@ -1277,5 +1277,24 @@ Add several WebDAV/S3 destinations and a schedule under **Settings → Backup**.
 
 Press \`Ctrl + ,\` to change the interface language, theme, typography, editor, sync, or backup settings. You now know everything needed to use Inkstone. Keep this note as a reference or delete it and start writing. #getting-started
 `,
+
+    // Landing page
+    "landing.hero_title": "Your thoughts, beautifully organized.",
+    "landing.hero_description": "A private cloud notebook. Markdown editing, real-time sync, and full data ownership.",
+    "landing.get_started": "Get Started",
+    "landing.features_label": "CAPABILITIES",
+    "landing.features_title": "Everything you need to write better",
+    "landing.feature_markdown_title": "Markdown Editing",
+    "landing.feature_markdown_desc": "Split-screen live preview with full Markdown support, math formulas, Mermaid diagrams, and syntax highlighting.",
+    "landing.feature_sync_title": "Real-time Sync",
+    "landing.feature_sync_desc": "Seamlessly sync across all your devices. Edit on your phone, continue on your desktop.",
+    "landing.feature_backup_title": "Multi-cloud Backup",
+    "landing.feature_backup_desc": "Automatic backups to WebDAV and S3-compatible storage. Your data, your backup strategy.",
+    "landing.feature_private_title": "Privacy First",
+    "landing.feature_private_desc": "Self-hosted on your own infrastructure. No third-party tracking, no data mining.",
+    "landing.feature_mobile_title": "Mobile Ready",
+    "landing.feature_mobile_desc": "Responsive design with PWA support. Install as a native app on any device.",
+    "landing.feature_security_title": "Secure by Design",
+    "landing.feature_security_desc": "Two-factor authentication, session management, and encrypted sessions out of the box.",
 } as const;
 export type MessageKey = keyof typeof EN_US_MESSAGES;

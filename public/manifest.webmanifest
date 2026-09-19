@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Inkstone",
-  "short_name": "Inkstone",
-  "description": "A private, self-hosted Markdown notebook.",
+  "name": "CloudNote",
+  "short_name": "CloudNote",
+  "description": "Private cloud notebook service.",
   "lang": "en-US",
   "start_url": "/",
   "scope": "/",

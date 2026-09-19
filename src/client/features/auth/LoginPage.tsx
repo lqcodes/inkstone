@@ -2,15 +2,13 @@ import { useRef, useState } from 'react'
 import { ArrowLeft, KeyRound, Loader2, TriangleAlert } from 'lucide-react'
 import { LIMITS } from '@shared/constants'
 import type { TotpLoginChallenge } from '@shared/types'
-import { Logo } from '../../components/primitives'
-import { Input } from '../../components/form'
 import { cn } from '../../lib/cn'
 import { ApiError } from '../../lib/api'
 import { t } from '../../lib/i18n'
 import { initialLoginCredentials } from '../../lib/runtime'
 import { useSession } from '../../store/session'
 
-export function LoginPage() {
+export function LoginForm() {
   const initialCredentials = initialLoginCredentials()
   const site = useSession((state) => state.site)
   const authError = useSession((state) => state.authError)
@@ -88,70 +86,71 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-full flex-col items-center justify-center overflow-y-auto px-4 pt-[calc(32px+env(safe-area-inset-top))] pb-[calc(24px+env(safe-area-inset-bottom))] md:px-6 md:py-10">
-      <Backdrop />
-
-      <div className="anim-rise relative w-full max-w-[380px]">
-        <div className="mb-6 flex flex-col items-center text-center md:mb-8">
-          <div
-            className={cn(
-              'mb-5 flex size-14 items-center justify-center rounded-[18px]',
-              'border border-[var(--border-default)] bg-[var(--bg-surface)]',
-              'text-[var(--accent)] shadow-[var(--shadow-pop)]',
-            )}
-          >
-            <Logo size={27} />
-          </div>
-          <h1
-            className="text-[30px] font-semibold tracking-[0.01em] text-[var(--text-primary)]"
-            style={{ fontFamily: 'var(--font-serif)' }}
-          >
-            {t("common.product_name")}
-          </h1>
-          <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--text-tertiary)]">
-            {challenge
-              ? t('auth.two_step_verification_description')
-              : firstRun
+    <div className="w-full max-w-[380px]">
+      {/* Header */}
+      <div className="mb-6 flex flex-col items-center text-center">
+        <img
+          src="/cloudnote-logo.webp"
+          alt=""
+          width={48}
+          height={48}
+          className="mb-3 size-12 rounded-[10px]"
+        />
+        <h2 className="text-[20px] font-bold tracking-tight text-[#1a2332]">
+          {challenge
+            ? t('auth.two_step_verification_description')
+            : firstRun
+              ? t("auth.create_owner_account")
+              : registerMode
+                ? t("auth.sign_up")
+                : t("auth.sign_in")}
+        </h2>
+        {!challenge && (
+          <p className="mt-1 text-[13px] text-[#6b7a8d]">
+            {firstRun
               ? t("auth.create_the_owner_account_this_step_appears_only_once")
               : t("auth.between_the_paper_and_ink_the_pen_comes_to_life_an_inkstone_is_used_to_p")}
           </p>
-        </div>
+        )}
+      </div>
 
-        <form
-          className="space-y-2.5"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void submit()
-          }}
-        >
-          {challenge ? (
-            <>
-              <div className="mb-3 flex items-center gap-2 rounded-[var(--r-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5 text-[12px] text-[var(--text-secondary)]">
-                <KeyRound size={14} className="shrink-0 text-[var(--accent)]" />
-                <span className="min-w-0 truncate">@{username.trim()}</span>
-              </div>
-              <Input
-                aria-label={recoveryMode ? t('auth.recovery_code') : t('auth.authenticator_code')}
-                value={verificationCode}
-                maxLength={recoveryMode ? 24 : 8}
-                onChange={(event) => setVerificationCode(
-                  recoveryMode
-                    ? event.target.value.toUpperCase()
-                    : event.target.value.replace(/\D/g, '').slice(0, 6),
-                )}
-                disabled={busy}
-                placeholder={recoveryMode ? 'XXXX-XXXX-XXXX-XXXX' : '000000'}
-                autoComplete={recoveryMode ? 'off' : 'one-time-code'}
-                autoCapitalize={recoveryMode ? 'characters' : 'none'}
-                inputMode={recoveryMode ? 'text' : 'numeric'}
-                spellCheck={false}
-                autoFocus
-              />
-            </>
-          ) : (
-            <>
-              <Input
-                aria-label={t("common.username")}
+      {/* Form */}
+      <form
+        className="space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void submit()
+        }}
+      >
+        {challenge ? (
+          <>
+            <div className="mb-2 flex items-center gap-2 rounded-lg border border-[#e2e8f0] bg-[#f8fafc] px-3 py-2.5 text-[13px] text-[#475569]">
+              <KeyRound size={14} className="shrink-0 text-[#3b82f6]" />
+              <span className="min-w-0 truncate">@{username.trim()}</span>
+            </div>
+            <FieldLabel label={recoveryMode ? t('auth.recovery_code') : t('auth.authenticator_code')} />
+            <FormField
+              value={verificationCode}
+              maxLength={recoveryMode ? 24 : 8}
+              onChange={(event) => setVerificationCode(
+                recoveryMode
+                  ? event.target.value.toUpperCase()
+                  : event.target.value.replace(/\D/g, '').slice(0, 6),
+              )}
+              disabled={busy}
+              placeholder={recoveryMode ? 'XXXX-XXXX-XXXX-XXXX' : '000000'}
+              autoComplete={recoveryMode ? 'off' : 'one-time-code'}
+              autoCapitalize={recoveryMode ? 'characters' : 'none'}
+              inputMode={recoveryMode ? 'text' : 'numeric'}
+              spellCheck={false}
+              autoFocus
+            />
+          </>
+        ) : (
+          <>
+            <div>
+              <FieldLabel label={t("common.username")} required />
+              <FormField
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 disabled={busy}
@@ -159,9 +158,12 @@ export function LoginPage() {
                 autoComplete="username"
                 autoCapitalize="none"
                 spellCheck={false}
+                autoFocus
               />
-              <Input
-                aria-label={t("common.password")}
+            </div>
+            <div>
+              <FieldLabel label={t("common.password")} required />
+              <FormField
                 type="password"
                 value={password}
                 maxLength={LIMITS.passwordMaxLength}
@@ -170,11 +172,13 @@ export function LoginPage() {
                 placeholder={registerMode ? t("auth.password_minimum_8_characters") : t("common.password")}
                 autoComplete={registerMode ? 'new-password' : 'current-password'}
               />
-            </>
-          )}
-          {!challenge && registerMode && (
-            <Input
-              aria-label={t("auth.confirm_password")}
+            </div>
+          </>
+        )}
+        {!challenge && registerMode && (
+          <div>
+            <FieldLabel label={t("auth.confirm_password")} required />
+            <FormField
               type="password"
               value={confirmation}
               maxLength={LIMITS.passwordMaxLength}
@@ -183,114 +187,112 @@ export function LoginPage() {
               placeholder={t("auth.confirm_password")}
               autoComplete="new-password"
             />
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={busy}
+          className={cn(
+            'mt-1 flex h-10 w-full items-center justify-center gap-2 rounded-lg',
+            'bg-[#3b82f6] text-[14px] font-semibold text-white',
+            'transition-all duration-200 ease-out',
+            'hover:bg-[#2563eb] active:translate-y-px disabled:opacity-50',
           )}
-          <button
-            type="submit"
-            disabled={busy}
-            className={cn(
-              'flex h-11 w-full items-center justify-center gap-2.5 rounded-[var(--r-lg)]',
-              'bg-[var(--accent)] text-[13.5px] font-medium text-[var(--accent-contrast)]',
-              'transition-[transform,opacity,background-color] duration-[var(--dur-fast)] ease-[var(--ease-out)]',
-              'hover:bg-[var(--accent-hover)] active:translate-y-px disabled:opacity-50',
-            )}
-          >
-            {busy && <Loader2 size={16} className="animate-[ink-spin_.7s_linear_infinite]" />}
-            {challenge
-              ? t('auth.verify_and_sign_in')
-              : registerMode
-                ? (firstRun ? t("auth.create_owner_account") : t("auth.sign_up"))
-                : t("auth.sign_in")}
-          </button>
-          {challenge && (
-            <div className="flex items-center justify-between gap-3 pt-1">
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  setChallenge(null)
-                  setVerificationCode('')
-                  setRecoveryMode(false)
-                  setError(null)
-                }}
-                className="inline-flex items-center gap-1 text-[12px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--accent)]"
-              >
-                <ArrowLeft size={12} />
-                {t('auth.back_to_password')}
-              </button>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  setRecoveryMode((value) => !value)
-                  setVerificationCode('')
-                  setError(null)
-                }}
-                className="text-[12px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--accent)]"
-              >
-                {recoveryMode ? t('auth.use_authenticator_code') : t('auth.use_recovery_code')}
-              </button>
-            </div>
-          )}
-          {!challenge && showModeSwitch && (
+        >
+          {busy && <Loader2 size={16} className="animate-[ink-spin_.7s_linear_infinite]" />}
+          {challenge
+            ? t('auth.verify_and_sign_in')
+            : registerMode
+              ? (firstRun ? t("auth.create_owner_account") : t("auth.sign_up"))
+              : t("auth.sign_in")}
+        </button>
+
+        {challenge && (
+          <div className="flex items-center justify-between gap-3 pt-1">
             <button
               type="button"
               disabled={busy}
               onClick={() => {
-                setMode(registerMode ? 'login' : 'register')
+                setChallenge(null)
+                setVerificationCode('')
+                setRecoveryMode(false)
                 setError(null)
               }}
-              className="mx-auto block text-[12px] text-[var(--text-tertiary)] transition-colors hover:text-[var(--accent)]"
+              className="inline-flex items-center gap-1 text-[12.5px] text-[#6b7a8d] transition-colors hover:text-[#3b82f6]"
             >
-              {registerMode ? t("auth.already_have_an_account_sign_in") : t("auth.no_account_create_one")}
+              <ArrowLeft size={12} />
+              {t('auth.back_to_password')}
             </button>
-          )}
-        </form>
-
-        {(error || authError) && (
-          <div role="alert" className="anim-rise mt-4 flex items-start gap-2 rounded-[var(--r-md)] border border-[color-mix(in_oklab,var(--danger)_35%,transparent)] bg-[color-mix(in_oklab,var(--danger)_9%,transparent)] px-3 py-2.5">
-            <TriangleAlert size={14} className="mt-[1px] shrink-0 text-[var(--danger)]" />
-            <span className="text-[12px] leading-relaxed text-[var(--text-secondary)]">
-              {error || authError}
-            </span>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                setRecoveryMode((value) => !value)
+                setVerificationCode('')
+                setError(null)
+              }}
+              className="text-[12.5px] text-[#6b7a8d] transition-colors hover:text-[#3b82f6]"
+            >
+              {recoveryMode ? t('auth.use_authenticator_code') : t('auth.use_recovery_code')}
+            </button>
           </div>
         )}
+        {!challenge && showModeSwitch && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setMode(registerMode ? 'login' : 'register')
+              setError(null)
+            }}
+            className="mx-auto block text-[12.5px] text-[#6b7a8d] transition-colors hover:text-[#3b82f6]"
+          >
+            {registerMode ? t("auth.already_have_an_account_sign_in") : t("auth.no_account_create_one")}
+          </button>
+        )}
+      </form>
 
-        <div className="mt-6 space-y-2 text-center md:mt-8">
-          {site?.initialized && !site.registrationOpen && (
-            <p className="text-[11.5px] leading-relaxed text-[var(--text-quaternary)]">
-              {t("auth.this_is_a_private_instance_registration_is_closed_so_only_existing_accou")}
-            </p>
-          )}
-          <p className="text-[11px] tracking-[0.04em] text-[var(--text-quaternary)]">
-            {t("auth.live_split_view_markdown_preview_realtime_multi_device_sync_multiple_web")}
-          </p>
+      {(error || authError) && (
+        <div role="alert" className="anim-rise mt-4 flex items-start gap-2 rounded-lg border border-[#fecaca] bg-[#fef2f2] px-3 py-2.5">
+          <TriangleAlert size={14} className="mt-[1px] shrink-0 text-[#dc2626]" />
+          <span className="text-[12.5px] leading-relaxed text-[#991b1b]">
+            {error || authError}
+          </span>
         </div>
-      </div>
+      )}
 
-      <footer className="pointer-events-none mt-6 text-center text-[11px] tracking-[0.05em] text-[var(--text-quaternary)] md:mt-8">
-        {t("auth.self_hosted_on_cloudflare_workers_your_data_is_yours")}
-      </footer>
+      {site?.initialized && !site.registrationOpen && (
+        <p className="mt-5 text-center text-[12px] leading-relaxed text-[#94a3b8]">
+          {t("auth.this_is_a_private_instance_registration_is_closed_so_only_existing_accou")}
+        </p>
+      )}
     </div>
   )
 }
 
 
-function Backdrop() {
+function FieldLabel({ label, required }: { label: string; required?: boolean }) {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div
-        className="absolute left-1/2 top-[-22%] size-[720px] -translate-x-1/2 rounded-full opacity-[0.13] blur-[120px]"
-        style={{ background: 'var(--accent)' }}
-      />
-      <div
-        className="absolute inset-0 opacity-[0.5]"
-        style={{
-          backgroundImage:
-            'linear-gradient(var(--border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px)',
-          backgroundSize: '52px 52px',
-          maskImage: 'radial-gradient(ellipse 80% 55% at 50% 40%, #000 20%, transparent 78%)',
-        }}
-      />
-    </div>
+    <label className="mb-1.5 block text-[13px] font-medium text-[#334155]">
+      {label}
+      {required && <span className="ml-0.5 text-[#ef4444]">*</span>}
+    </label>
+  )
+}
+
+
+function FormField(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <input
+      {...props}
+      className={cn(
+        'block h-10 w-full rounded-lg border border-[#d1d5db] bg-white px-3 text-[14px] text-[#1e293b] outline-none',
+        'placeholder:text-[#94a3b8]',
+        'focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20',
+        'transition-all duration-150',
+        'disabled:cursor-not-allowed disabled:opacity-50',
+      )}
+    />
   )
 }
